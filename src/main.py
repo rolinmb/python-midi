@@ -16,13 +16,19 @@ if num_devices == 0:
 
 # MIDI Callback Function (called when a MIDI message is received)
 def midi_callback(hMidiIn, wMsg, dwInstance, dwParam1, dwParam2):
-    print(f"Callback triggered; message: {wMsg}")
+    #print(f"Callback triggered; message: {wMsg}")
     if wMsg == 0x3C3:  # MIM_DATA (MIDI message received)
-        status = dwParam1 & 0xFF
-        data1 = (dwParam1 >> 8) & 0xFF
-        data2 = (dwParam1 >> 16) & 0xFF
-        print(f"Received MIDI: Status={hex(status)}, Data1={data1}, Data2={data2}")
-        sys.stdout.flush()
+        status = dwParam1 & 0xFF  # Extract the status byte
+        data1 = (dwParam1 >> 8) & 0xFF  # Extract the first data byte (note number)
+        data2 = (dwParam1 >> 16) & 0xFF  # Extract the second data byte (velocity)
+
+        if status >= 0x90 and status <= 0x9F:  # Note-on message (0x90 to 0x9F)
+            print(f"Note-on: Note={data1}, Velocity={data2}")
+        elif status >= 0x80 and status <= 0x8F:  # Note-off message (0x80 to 0x8F)
+            print(f"Note-off: Note={data1}, Velocity={data2}")
+        else:
+            print(f"Other MIDI message: Status={hex(status)}, Data1={data1}, Data2={data2}")
+        sys.stdout.flush()  # Flush output immediately
 
 # Define callback function type
 MidiInProc = ctypes.WINFUNCTYPE(None, wintypes.HANDLE, wintypes.UINT, wintypes.DWORD, wintypes.DWORD, wintypes.DWORD)

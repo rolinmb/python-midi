@@ -1,6 +1,7 @@
 import ctypes
 from ctypes import wintypes
 import sys
+from util import midi_note_to_name
 
 DEVICE_ID = 1
 
@@ -23,9 +24,9 @@ def midi_callback(hMidiIn, wMsg, dwInstance, dwParam1, dwParam2):
         data2 = (dwParam1 >> 16) & 0xFF  # Extract the second data byte (velocity)
 
         if status >= 0x90 and status <= 0x9F:  # Note-on message (0x90 to 0x9F)
-            print(f"Note-on: Note={data1}, Velocity={data2}")
+            print(f"Note-on: Note={midi_note_to_name(data1)}, Velocity={data2}")
         elif status >= 0x80 and status <= 0x8F:  # Note-off message (0x80 to 0x8F)
-            print(f"Note-off: Note={data1}, Velocity={data2}")
+            print(f"Note-off: Note={midi_note_to_name(data1)}, Velocity={data2}")
         else:
             print(f"Other MIDI message: Status={hex(status)}, Data1={data1}, Data2={data2}")
         sys.stdout.flush()  # Flush output immediately
